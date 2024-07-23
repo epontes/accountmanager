@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/accountdatabase
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/accountdatabase
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATA_SOURCE_PASSWORD: admin
     depends_on:
