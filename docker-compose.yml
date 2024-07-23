@@ -2,29 +2,40 @@ version: '3.8'
 
 
 services:
-  accountapplication:
-    build:
-      context: .
-      dockerfile: Docker/Dockerfile
-    ports:
-      - "8080:8080"
+  postgresdb:
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - ./.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/accountdatabase
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATA_SOURCE_PASSWORD: admin
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: accountdatabase
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      - POSTGRES_USER=$POSTGRESDB_USER
+      - POSTGRES_PASSWORD=$POSTGRESDB_ROOT_PASSWORD
+      - POSTGRES_DB=$POSTGRESDB_DATABASE
     ports:
-      - "5432:5432"
+      - $POSTGRESDB_LOCAL_PORT:$POSTGRESDB_DOCKER_PORT
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - db:/var/lib/postgres
 
+  app:
+    depends_on:
+      - postgresdb
+    build: .
+    restart: on-failure
+    env_file:
+      - ./.env
+    ports:
+      - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url"  : "jdbc:postgresql://postgresdb:$POSTGRESDB_DOCKER_PORT/$POSTGRESDB_DATABASE",
+        "spring.datasource.username" : "$POSTGRESDB_USER",
+        "spring.datasource.password" : "$POSTGRESDB_ROOT_PASSWORD",
+        "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.PostgreSQLDialect",
+        "spring.jpa.hibernate.ddl-auto" : "update"
+      }'
+    volumes:
+      - .m2:/root/.m2
+    stdin_open: true
+    tty: true
 volumes:
-  postgres_data:
+  db:
