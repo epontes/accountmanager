@@ -14,4 +14,4 @@ Antes de iniciar, certifique-se de ter os seguintes softwares instalados em sua 
    Primeiro, clone o repositório para sua máquina local:
 
    ```sh
-   git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+   git clone https://github.com/epontes/accountmanager.git
